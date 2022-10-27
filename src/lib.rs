@@ -1,0 +1,160 @@
+mod structs;
+use discord_rich_presence::{activity, DiscordIpc, DiscordIpcClient};
+use std::error::Error;
+use std::fs;
+use std::io;
+use structs::Config;
+
+/// Constant for config file
+pub const CONF_FILE_NAME: &str = "config.toml";
+
+// TODO: Generate config file if absent
+/// Loads [Config] from config.toml
+pub fn load_conf() -> Config {
+    let file = fs::read_to_string(&CONF_FILE_NAME).unwrap_or_else(|_| {
+        eprintln!(
+            "\
+		Missing file config.toml in directory.\n\
+		Please copy the file from 'https://github.com/Yakiyo/crp/blob/main/config.toml'\
+		and adjust it to your needs\n\
+		Please close this window, fix your config file and restart the process again."
+        );
+		loop {} // Keep the process running, so that user sees the message.
+    });
+    let conf: Config = toml::from_str(&file).unwrap_or_else(|_| {
+        let err_msg = "Invalid syntax in config file\n\
+		Config Requirements:\n\
+		• Make sure parameters ID, State & Details are present and have valid values\n\
+		• Do not have any empty values. Either remove them completely or put \"\" instead\n\
+		For any problems, open an issue in https://github.com/Yakiyo/crp/issues\n\
+		Please close this window, fix your config file and restart the process again.";
+
+        eprintln!("{err_msg}");
+        loop {} // Keep the process running, so that user sees the message.
+    });
+    conf
+}
+
+/// Initiates the process. Connects to the client and stuff.
+pub fn run(c: &Config) -> Result<(), Box<dyn Error>> {
+    println!("Connecting.......");
+
+    let actv = activity::Activity::new();
+    let actv = actv.state(&c.State.State).details(&c.State.Details);
+
+    // Simplify names for the sake of it
+    let st = &c.State;
+    let img = &c.Images;
+    let butt = &c.Buttons; // :p
+
+    // Create assets
+    let mut assets = activity::Assets::new();
+
+    if !img.LargeImage.is_empty() {
+        assets = assets.large_image(&img.LargeImage);
+        if !img.LargeImageTooltip.is_empty() {
+            assets = assets.large_text(&img.LargeImageTooltip);
+        }
+    }
+    if !img.SmallImage.is_empty() {
+        assets = assets.large_image(&img.LargeImage);
+        if !img.SmallImageTooltip.is_empty() {
+            assets = assets.large_text(&img.SmallImageTooltip);
+        }
+    }
+
+    // Create timestamps
+    let mut ts = activity::Timestamps::new();
+    if !st.StartTimestamp.is_empty() && st.StartTimestamp != "0" {
+        ts = ts.start(st.StartTimestamp.parse::<i64>()?);
+    } else if !st.EndTimestamp.is_empty() && st.EndTimestamp != "0" {
+        ts = ts.end(st.EndTimestamp.parse::<i64>()?);
+    }
+
+    // Create buttons
+    let mut buttons = Vec::new();
+    if !butt.FirstLabel.is_empty() {
+        // Discord doesn't even register the rich presence
+        // if there is a label but link. So default it to
+        // the github repo link, if its emtpy
+        let url = if butt.FirstUrl.is_empty() {
+            "https://github.com/Yakiyo/crp"
+        } else {
+            &butt.FirstUrl
+        };
+        buttons.push(activity::Button::new(&butt.FirstLabel, url));
+    }
+    if !butt.SecondLabel.is_empty() {
+        let url = if butt.SecondUrl.is_empty() {
+            "https://github.com/Yakiyo/crp"
+        } else {
+            &butt.SecondUrl
+        };
+        buttons.push(activity::Button::new(&butt.SecondLabel, url));
+    }
+
+    let mut client = DiscordIpcClient::new(&c.ID)?;
+    client.connect()?;
+    client.set_activity(actv.assets(assets).timestamps(ts).buttons(buttons))?;
+
+    // TODO: Color print text?
+    // One hot cluster fuck of string interpolation :(
+    println!(
+        "Showing Presence ({}):\n\
+	State: {}\n\
+	Details: {}\n\
+	Start Timestamp: {}\n\
+	End Timestamp: {}\n\
+	Large Image: {} with tool tip: {}\n\
+	Small Image: {} with tool tip: {}",
+        c.ID,
+        c.State.State,
+        c.State.Details,
+        c.State.StartTimestamp,
+        c.State.EndTimestamp,
+        c.Images.LargeImage,
+        c.Images.LargeImageTooltip,
+        c.Images.SmallImage,
+        c.Images.SmallImageTooltip,
+    );
+    // This keeps the process running. If the user types q/quit/exit
+    // it'll close client and shut down. Else keep going. This is to
+    // ensure the terminal doesn't close down. There is probably a
+    // better process, but this is all i can think of for now
+    // FIXME: Make this better?
+    // TODO: Check for file change on loop, also use Sleep to pause between loops
+    loop {
+        let q = input("Press q/quit/exit to shutdown process:").to_lowercase();
+        if q == "q" || q == "quit" || q == "exit" {
+            break;
+        } else {
+            continue;
+        }
+    }
+
+    println!("Shutting down client....");
+    client.close()?;
+
+    Ok(())
+}
+
+/// Take input from users through the command line
+fn input(query: &str) -> String {
+    println!("{query}");
+    let mut res = String::new();
+    io::stdin().read_line(&mut res).unwrap();
+
+    // Trim it for any whitespaces and return a newly generated String
+    String::from(res.trim())
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_load_conf() {
+        let conf = load_conf();
+        assert_eq!(conf.State.Details, "Using CRP")
+    }
+}

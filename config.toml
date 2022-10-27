@@ -1,0 +1,30 @@
+# Configuration file for crp.
+#
+# Arguments ID, State and Details are required.
+# All others are optional. You can keep them empty
+# as "" or completely remove them.
+#
+# Do not change the names of the keys. Otherwise they
+# will not be parsed correctly
+# For issues please open a new issue at:
+# https://github.com/Yakiyo/crp/issues
+
+ID = "MANDATORY!!! PUT ID HERE"
+
+[State]
+State = "Custom Rich Presence"
+Details = "Using CRP"
+StartTimestamp = ""
+EndTimestamp = ""
+
+[Images]
+LargeImage = ""
+SmallImage = ""
+LargeImageTooltip = ""
+SmallImageTooltip = ""
+
+[Buttons]
+FirstLabel = ""
+FirstUrl = ""
+SecondLabel = ""
+SecondUrl = ""
