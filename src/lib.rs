@@ -57,9 +57,9 @@ pub fn run(c: &Config) -> Result<(), Box<dyn Error>> {
         }
     }
     if !img.SmallImage.is_empty() {
-        assets = assets.large_image(&img.LargeImage);
+        assets = assets.small_image(&img.SmallImage);
         if !img.SmallImageTooltip.is_empty() {
-            assets = assets.large_text(&img.SmallImageTooltip);
+            assets = assets.small_text(&img.SmallImageTooltip);
         }
     }
 
