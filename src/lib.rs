@@ -32,6 +32,10 @@ pub fn load_conf() -> Config {
         eprintln!("{err_msg}");
         loop {} // Keep the process running, so that user sees the message.
     });
+	if !conf.ID.chars().all(char::is_numeric) {
+		eprintln!("Error when parsing config file. ID must only contain numeric characters.");
+		loop {}
+	}
     conf
 }
 
