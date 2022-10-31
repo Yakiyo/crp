@@ -41,12 +41,17 @@ pub fn load_conf() -> Result<Config, &'static str> {
         return Err("Error when parsing config file.\n\
 		• ID must only contain numeric characters and be of 17-18 characters.");
     }
+	if conf.ID == "01234567890123456789" {
+		return Err("Please use a valid application ID. The default value '01234567890123456789' is not a valid application ID.")
+	}
     Ok(conf)
 }
 
 /// Initiates the process. Connects to the client and stuff.
 pub fn run(c: &Config) -> Result<(), Box<dyn Error>> {
-    println!("Connecting.......");
+    // Fix for this: https://github.com/Yakiyo/crp/issues/6
+	colored::control::set_virtual_terminal(true).unwrap();
+	println!("Connecting.......");
 
     let actv = activity::Activity::new()
         .state(&c.State.State)
