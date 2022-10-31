@@ -23,15 +23,18 @@ pub fn load_conf() -> Result<Config, &'static str> {
 	let conf: Config = match toml::from_str(&file) {
 		Ok(c) => c,
 		_ => return Err("Invalid syntax in config file\n\
-		// 	Config Requirements:\n\
-		// 	• Make sure parameters ID, State & Details are present and have valid values\n\
-		// 	• Do not have any empty values. Either remove them completely or put \"\" instead\n\
-		// 	For any problems, open an issue in https://github.com/Yakiyo/crp/issues\n\
-		// 	Please close this window, fix your config file and restart the process again."),
+			Config Requirements:\n\
+		 	• Make sure parameters ID, State & Details are present and have valid values\n\
+		 	• Do not have any empty values. Either remove them completely or put \"\" instead\n\
+		 	For any problems, open an issue in https://github.com/Yakiyo/crp/issues\n\
+		 	Please close this window, fix your config file and restart the process again."),
 	};
 
-	if !conf.ID.chars().all(char::is_numeric) {
-		return Err("Error when parsing config file. ID must only contain numeric characters.");
+	// Am not sure if discord application IDs are always 18 characters long. So
+	// checking for 17 >= to be safe
+	if !conf.ID.chars().all(char::is_numeric) || conf.ID.chars().count() < 17 {
+		return Err("Error when parsing config file.\n\
+		• ID must only contain numeric characters and be of 17-18 characters.");
 	}
     Ok(conf)
 }
