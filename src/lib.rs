@@ -10,33 +10,30 @@ pub const CONF_FILE_NAME: &str = "config.toml";
 
 // TODO: Generate config file if absent
 /// Loads [Config] from config.toml
-pub fn load_conf() -> Config {
-    let file = fs::read_to_string(&CONF_FILE_NAME).unwrap_or_else(|_| {
-        eprintln!(
-            "\
+pub fn load_conf() -> Result<Config, &'static str> {
+    let file = match fs::read_to_string(&CONF_FILE_NAME) {
+        Ok(e) => e,
+		_ => return Err("\
 		Missing file config.toml in directory.\n\
 		Please copy the file from 'https://github.com/Yakiyo/crp/blob/main/config.toml'\
 		and adjust it to your needs\n\
-		Please close this window, fix your config file and restart the process again."
-        );
-		loop {} // Keep the process running, so that user sees the message.
-    });
-    let conf: Config = toml::from_str(&file).unwrap_or_else(|_| {
-        let err_msg = "Invalid syntax in config file\n\
-		Config Requirements:\n\
-		• Make sure parameters ID, State & Details are present and have valid values\n\
-		• Do not have any empty values. Either remove them completely or put \"\" instead\n\
-		For any problems, open an issue in https://github.com/Yakiyo/crp/issues\n\
-		Please close this window, fix your config file and restart the process again.";
+		Please close this window, fix your config file and restart the process again.")
+    };
 
-        eprintln!("{err_msg}");
-        loop {} // Keep the process running, so that user sees the message.
-    });
+	let conf: Config = match toml::from_str(&file) {
+		Ok(c) => c,
+		_ => return Err("Invalid syntax in config file\n\
+		// 	Config Requirements:\n\
+		// 	• Make sure parameters ID, State & Details are present and have valid values\n\
+		// 	• Do not have any empty values. Either remove them completely or put \"\" instead\n\
+		// 	For any problems, open an issue in https://github.com/Yakiyo/crp/issues\n\
+		// 	Please close this window, fix your config file and restart the process again."),
+	};
+
 	if !conf.ID.chars().all(char::is_numeric) {
-		eprintln!("Error when parsing config file. ID must only contain numeric characters.");
-		loop {}
+		return Err("Error when parsing config file. ID must only contain numeric characters.");
 	}
-    conf
+    Ok(conf)
 }
 
 /// Initiates the process. Connects to the client and stuff.
@@ -158,7 +155,7 @@ mod test {
 
     #[test]
     fn test_load_conf() {
-        let conf = load_conf();
-        assert_eq!(conf.State.Details, "Using CRP")
+		let conf = load_conf().unwrap();
+        assert_eq!(conf.State.Details, "Using CRP");
     }
 }
