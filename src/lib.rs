@@ -4,6 +4,7 @@ use std::error::Error;
 use std::fs;
 use std::io;
 use structs::Config;
+use colored::Colorize;
 
 /// Constant for config file
 pub const CONF_FILE_NAME: &str = "config.toml";
@@ -80,7 +81,7 @@ pub fn run(c: &Config) -> Result<(), Box<dyn Error>> {
     let mut buttons = Vec::new();
     if !butt.FirstLabel.is_empty() {
         // Discord doesn't even register the rich presence
-        // if there is a label but link. So default it to
+        // if there is a label but no link. So default it to
         // the github repo link, if its emtpy
         let url = if butt.FirstUrl.is_empty() {
             "https://github.com/Yakiyo/crp"
@@ -102,26 +103,26 @@ pub fn run(c: &Config) -> Result<(), Box<dyn Error>> {
     client.connect()?;
     client.set_activity(actv.assets(assets).timestamps(ts).buttons(buttons))?;
 
-    // TODO: Color print text?
     // One hot cluster fuck of string interpolation :(
-    println!(
-        "Showing Presence ({}):\n\
-		State: {}\n\
-		Details: {}\n\
-		Start Timestamp: {}\n\
-		End Timestamp: {}\n\
-		Large Image: {} with tool tip: {}\n\
-		Small Image: {} with tool tip: {}",
-        c.ID,
-        c.State.State,
-        c.State.Details,
-        c.State.StartTimestamp,
-        c.State.EndTimestamp,
-        c.Images.LargeImage,
-        c.Images.LargeImageTooltip,
-        c.Images.SmallImage,
-        c.Images.SmallImageTooltip,
-    );
+    println!("{}", 
+		format!(
+			"{} ({})\n\
+			{}: {}\n\
+			{}: {}\n\
+			{}: {}\n\
+			{}: {}\n\
+			{}: {} with {}: {}\n\
+			{}: {} with {}: {}\n\
+			", 
+			"Showing Presence".blue(), c.ID.bold(),
+			"State".blue(), c.State.State,
+			"Details".blue(), c.State.Details,
+			"Start Timestamp".blue(), c.State.StartTimestamp,
+			"End Timestamp".blue(), c.State.EndTimestamp,
+			"Large Image".blue(), c.Images.LargeImage, "tooltip".blue(), c.Images.LargeImageTooltip,
+			"Small Image".blue(), c.Images.SmallImage, "tooltip".blue(), c.Images.SmallImageTooltip,
+		)
+	);
     // This keeps the process running. If the user types q/quit/exit
     // it'll close client and shut down. Else keep going. This is to
     // ensure the terminal doesn't close down. There is probably a
