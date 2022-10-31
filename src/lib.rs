@@ -106,12 +106,12 @@ pub fn run(c: &Config) -> Result<(), Box<dyn Error>> {
     // One hot cluster fuck of string interpolation :(
     println!(
         "Showing Presence ({}):\n\
-	State: {}\n\
-	Details: {}\n\
-	Start Timestamp: {}\n\
-	End Timestamp: {}\n\
-	Large Image: {} with tool tip: {}\n\
-	Small Image: {} with tool tip: {}",
+		State: {}\n\
+		Details: {}\n\
+		Start Timestamp: {}\n\
+		End Timestamp: {}\n\
+		Large Image: {} with tool tip: {}\n\
+		Small Image: {} with tool tip: {}",
         c.ID,
         c.State.State,
         c.State.Details,
