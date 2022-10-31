@@ -155,7 +155,12 @@ mod test {
 
     #[test]
     fn test_load_conf() {
-		let conf = load_conf().unwrap();
+		let conf = match load_conf() {
+			Ok(o) => o,
+			Err(e) => {
+				panic!("{e}");
+			}
+		};
         assert_eq!(conf.State.Details, "Using CRP");
     }
 }
