@@ -1,10 +1,10 @@
 mod structs;
+use colored::Colorize;
 use discord_rich_presence::{activity, DiscordIpc, DiscordIpcClient};
 use std::error::Error;
 use std::fs;
 use std::io;
 use structs::Config;
-use colored::Colorize;
 
 /// Constant for config file
 pub const CONF_FILE_NAME: &str = "config.toml";
@@ -14,29 +14,33 @@ pub const CONF_FILE_NAME: &str = "config.toml";
 pub fn load_conf() -> Result<Config, &'static str> {
     let file = match fs::read_to_string(&CONF_FILE_NAME) {
         Ok(e) => e,
-		_ => return Err("\
+        _ => {
+            return Err("\
 		Missing file config.toml in directory.\n\
 		Please copy the file from 'https://github.com/Yakiyo/crp/blob/main/config.toml'\
 		and adjust it to your needs\n\
 		Please close this window, fix your config file and restart the process again.")
+        }
     };
 
-	let conf: Config = match toml::from_str(&file) {
-		Ok(c) => c,
-		_ => return Err("Invalid syntax in config file\n\
+    let conf: Config = match toml::from_str(&file) {
+        Ok(c) => c,
+        _ => {
+            return Err("Invalid syntax in config file\n\
 			Config Requirements:\n\
 		 	• Make sure parameters ID, State & Details are present and have valid values\n\
 		 	• Do not have any empty values. Either remove them completely or put \"\" instead\n\
 		 	For any problems, open an issue in https://github.com/Yakiyo/crp/issues\n\
-		 	Please close this window, fix your config file and restart the process again."),
-	};
+		 	Please close this window, fix your config file and restart the process again.")
+        }
+    };
 
-	// Am not sure if discord application IDs are always 18 characters long. So
-	// checking for 17 >= to be safe
-	if !conf.ID.chars().all(char::is_numeric) || conf.ID.chars().count() < 17 {
-		return Err("Error when parsing config file.\n\
+    // Am not sure if discord application IDs are always 18 characters long. So
+    // checking for 17 >= to be safe
+    if !conf.ID.chars().all(char::is_numeric) || conf.ID.chars().count() < 17 {
+        return Err("Error when parsing config file.\n\
 		• ID must only contain numeric characters and be of 17-18 characters.");
-	}
+    }
     Ok(conf)
 }
 
@@ -45,8 +49,8 @@ pub fn run(c: &Config) -> Result<(), Box<dyn Error>> {
     println!("Connecting.......");
 
     let actv = activity::Activity::new()
-		.state(&c.State.State)
-		.details(&c.State.Details);
+        .state(&c.State.State)
+        .details(&c.State.Details);
 
     // Simplify names for the sake of it
     let st = &c.State;
@@ -104,25 +108,34 @@ pub fn run(c: &Config) -> Result<(), Box<dyn Error>> {
     client.set_activity(actv.assets(assets).timestamps(ts).buttons(buttons))?;
 
     // One hot cluster fuck of string interpolation :(
-    println!("{}", 
-		format!(
-			"{} ({})\n\
-			{}: {}\n\
-			{}: {}\n\
-			{}: {}\n\
-			{}: {}\n\
-			{}: {} with {}: {}\n\
-			{}: {} with {}: {}\n\
-			", 
-			"Showing Presence".blue(), c.ID.bold(),
-			"State".blue(), c.State.State,
-			"Details".blue(), c.State.Details,
-			"Start Timestamp".blue(), c.State.StartTimestamp,
-			"End Timestamp".blue(), c.State.EndTimestamp,
-			"Large Image".blue(), c.Images.LargeImage, "tooltip".blue(), c.Images.LargeImageTooltip,
-			"Small Image".blue(), c.Images.SmallImage, "tooltip".blue(), c.Images.SmallImageTooltip,
-		)
-	);
+    println!(
+        "{} ({})\n\
+		{}: {}\n\
+		{}: {}\n\
+		{}: {}\n\
+		{}: {}\n\
+		{}: {} with {}: {}\n\
+		{}: {} with {}: {}\n\
+		",
+        "Showing Presence".blue(),
+        c.ID.bold(),
+        "State".blue(),
+        c.State.State,
+        "Details".blue(),
+        c.State.Details,
+        "Start Timestamp".blue(),
+        c.State.StartTimestamp,
+        "End Timestamp".blue(),
+        c.State.EndTimestamp,
+        "Large Image".blue(),
+        c.Images.LargeImage,
+        "tooltip".blue(),
+        c.Images.LargeImageTooltip,
+        "Small Image".blue(),
+        c.Images.SmallImage,
+        "tooltip".blue(),
+        c.Images.SmallImageTooltip,
+    );
     // This keeps the process running. If the user types q/quit/exit
     // it'll close client and shut down. Else keep going. This is to
     // ensure the terminal doesn't close down. There is probably a
@@ -145,7 +158,7 @@ pub fn run(c: &Config) -> Result<(), Box<dyn Error>> {
 }
 
 /// Take input from users through the command line
-fn input(query: &str) -> String {
+pub fn input(query: &str) -> String {
     println!("{query}");
     let mut res = String::new();
     io::stdin().read_line(&mut res).unwrap();
@@ -160,12 +173,12 @@ mod test {
 
     #[test]
     fn test_load_conf() {
-		let conf = match load_conf() {
-			Ok(o) => o,
-			Err(e) => {
-				panic!("{e}");
-			}
-		};
+        let conf = match load_conf() {
+            Ok(o) => o,
+            Err(e) => {
+                panic!("{e}");
+            }
+        };
         assert_eq!(conf.State.Details, "Using CRP");
     }
 }
