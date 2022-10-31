@@ -5,14 +5,23 @@
 
 use crp::load_conf;
 use crp::run;
-use std::process;
 
 fn main() {
     // TODO: Check for new releases on running
-    let config = load_conf();
+    let config = match load_conf() {
+		Ok(conf) => conf,
+		Err(e) => {
+			eprintln!("{e}");
+			// This keeps the process running so the user can see the error output
+			// instead of the terminal instantly closing
+			loop {}
+		}
+	};
 
     if let Err(e) = run(&config) {
         eprintln!("Internal error, {e}");
-        process::exit(1);
+        // This keeps the process running so the user can see the error output
+		// instead of the terminal instantly closing
+		loop {}
     };
 }
