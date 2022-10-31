@@ -50,7 +50,9 @@ pub fn load_conf() -> Result<Config, &'static str> {
 /// Initiates the process. Connects to the client and stuff.
 pub fn run(c: &Config) -> Result<(), Box<dyn Error>> {
     // Fix for this: https://github.com/Yakiyo/crp/issues/6
-	colored::control::set_virtual_terminal(true).unwrap();
+	if cfg!(windows) {
+		colored::control::set_virtual_terminal(true).unwrap();
+	}
 	println!("Connecting.......");
 
     let actv = activity::Activity::new()
