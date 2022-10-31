@@ -43,8 +43,9 @@ pub fn load_conf() -> Result<Config, &'static str> {
 pub fn run(c: &Config) -> Result<(), Box<dyn Error>> {
     println!("Connecting.......");
 
-    let actv = activity::Activity::new();
-    let actv = actv.state(&c.State.State).details(&c.State.Details);
+    let actv = activity::Activity::new()
+		.state(&c.State.State)
+		.details(&c.State.Details);
 
     // Simplify names for the sake of it
     let st = &c.State;
