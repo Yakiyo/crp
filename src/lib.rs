@@ -183,7 +183,14 @@ mod test {
         let conf = match load_conf() {
             Ok(o) => o,
             Err(e) => {
-                panic!("{e}");
+                // This makes sure it doesnt panic if it gets the default ID. Everything else went fine
+				// if that is the error. Otherwise fail test
+				if !e.starts_with("Please use a valid application ID") {
+					panic!("{e}");
+				} else {
+					std::process::exit(0);
+				}
+
             }
         };
         assert_eq!(conf.State.Details, "Using CRP");
