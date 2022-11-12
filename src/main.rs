@@ -3,10 +3,10 @@
 // Repository: https://github.com/Yakiyo/crp
 // Copyright 2022 Yakiyo. All rights reserved. MIT license.
 
-use crp::input;
 use crp::load_conf;
 use crp::run;
 use std::process;
+use std::thread;
 
 fn main() {
     // TODO: Check for new releases on running
@@ -16,8 +16,8 @@ fn main() {
             eprintln!("{e}");
             // This keeps the process running so the user can see the error output
             // instead of the terminal instantly closing
-            input("Press q/quit/exit to shutdown process:");
-            process::exit(1);
+			thread::park();
+			process::exit(1);
         }
     };
 
@@ -25,7 +25,7 @@ fn main() {
         eprintln!("Internal error, {e}");
         // This keeps the process running so the user can see the error output
         // instead of the terminal instantly closing
-        input("Press q/quit/exit to shutdown process:");
+        thread::park();
         process::exit(1);
     };
 }
