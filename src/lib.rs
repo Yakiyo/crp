@@ -150,12 +150,10 @@ pub fn run(c: &Config) -> Result<(), Box<dyn Error>> {
     // FIXME: Make this better?
     // TODO: Check for file change on loop, also use Sleep to pause between loops
     loop {
-        let q = input("Press q/quit/exit to shutdown process:").to_lowercase();
-        if q == "q" || q == "quit" || q == "exit" {
-            break;
-        } else {
-            continue;
-        }
+		match input("Press q/quit/exit to shutdown process:").to_lowercase().as_str() {
+			"q" | "quit" | "exit" => break,
+			_ => continue,
+		}
     }
 
     println!("Shutting down client....");
