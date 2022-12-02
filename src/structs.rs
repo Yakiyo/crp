@@ -3,7 +3,7 @@
 use serde_derive::Deserialize;
 
 #[derive(Deserialize, Debug)]
-#[allow(non_snake_case, dead_code)]
+#[allow(non_snake_case)]
 pub struct Config {
     pub ID: String,
     pub State: State,
@@ -12,7 +12,7 @@ pub struct Config {
 }
 
 #[derive(Deserialize, Debug)]
-#[allow(non_snake_case, dead_code)]
+#[allow(non_snake_case)]
 pub struct State {
     pub State: String,
     pub Details: String,
@@ -23,7 +23,7 @@ pub struct State {
 }
 
 #[derive(Deserialize, Debug)]
-#[allow(non_snake_case, dead_code)]
+#[allow(non_snake_case)]
 pub struct Images {
     #[serde(default = "def_val")]
     pub LargeImage: String,
@@ -36,7 +36,7 @@ pub struct Images {
 }
 
 #[derive(Deserialize, Debug)]
-#[allow(non_snake_case, dead_code)]
+#[allow(non_snake_case)]
 pub struct Buttons {
     #[serde(default = "def_val")]
     pub FirstLabel: String,
