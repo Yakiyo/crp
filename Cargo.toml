@@ -13,3 +13,4 @@ serde = { version = "1.0.163", features = ["derive"] }
 toml = "0.7.4"
 yansi = "0.5.1"
 discord-presence = "0.5.14"
+anyhow = "1.0.71"
