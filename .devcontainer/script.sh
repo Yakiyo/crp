@@ -15,16 +15,11 @@ apt-get install -y \
 
 ## Install rustup and common components
 curl https://sh.rustup.rs -sSf | sh -s -- -y 
-rustup install nightly
+
 rustup component add rustfmt
-rustup component add rustfmt --toolchain nightly
 rustup component add clippy 
-rustup component add clippy --toolchain nightly
 
-CARGO="~/.cargo/bin/cargo"
-
-CARGO install --locked bat
-CARGO install lsd
+curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
 
 echo alias bat="bat --pager=never" >> ~/.bashrc
 # Install oh-my-posh
