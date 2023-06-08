@@ -27,7 +27,7 @@ CARGO="/root/.cargo/bin/cargo"
 
 $CARGO binstall lsd bat -y
 
-echo alias bat="bat --pager=never" >> ~/.bashrc
+echo alias bat=\"bat --pager=never\" >> ~/.bashrc
 # Install oh-my-posh
 curl -s https://ohmyposh.dev/install.sh | bash -s
 
