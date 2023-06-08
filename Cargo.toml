@@ -14,3 +14,10 @@ toml = "0.7.4"
 yansi = "0.5.1"
 discord-presence = "0.5.14"
 anyhow = "1.0.71"
+
+# Size optimizations. Reference: https://tauri.app/v1/guides/building/app-size/
+[profile.release]
+panic = "abort" # Strip expensive panic clean-up logic
+codegen-units = 1 # Compile crates one after another so the compiler can optimize better
+lto = true # Enables link to optimizations
+strip = true # Remove debug symbols
