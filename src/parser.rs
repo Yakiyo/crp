@@ -1,3 +1,4 @@
+use anyhow::bail;
 use anyhow::Context;
 use serde::Deserialize;
 
@@ -9,6 +10,7 @@ pub struct Toml {
     pub id: String,
     pub state: State,
     pub images: Images,
+    pub buttons: Buttons,
 }
 
 /// State
@@ -42,6 +44,25 @@ pub struct Buttons {
 }
 
 /// Parse toml string to config struct
-pub fn parse<S: AsRef<str>>(s: S) -> anyhow::Result<Toml> {
-    toml::from_str(s.as_ref()).context("Invalid config file")
+pub fn parse<S: AsRef<str>>(s: S) -> anyhow::Result<&'static mut Toml> {
+    let toml = toml::from_str::<Toml>(s.as_ref()).context("Invalid config file")?.validate().context("Invalid config file");
+	match toml {
+		Ok(e) => Ok(e),
+		Err(e) => Err(e),
+	}
+}
+
+impl Toml {
+    fn validate(&mut self) -> anyhow::Result<&mut Toml> {
+		if self.id.chars().all(|x| x.is_ascii_digit()) && self.id.chars().count() < 17 {
+			bail!("ID parameter must only contain digits and be longer than 17 digits")
+		}
+		if self.images.large_image.is_some_and(|x| x.is_empty()) {
+			self.images.large_image = None;
+		}
+		if self.images.small_image.is_some_and(|x| x.is_empty()) {
+			self.images.small_image = None;
+		}
+        Ok(self)
+    }
 }
